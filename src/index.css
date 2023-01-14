@@ -14,3 +14,11 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 }
+
+#root, body, html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
