@@ -1,7 +1,20 @@
 import { OrbitControls } from "@react-three/drei";
+import { create } from "zustand";
+interface CameraControlStore {
+  isActive: boolean;
+  enable: () => void;
+  disable: () => void;
+}
+
+export const useCameraControlStore = create<CameraControlStore>((set) => ({
+  isActive: true,
+  enable: () => set({ isActive: true }),
+  disable: () => set({ isActive: false }),
+}));
 
 export function CameraControlSetup() {
-  return (
+  const isActive = useCameraControlStore((state) => state.isActive);
+  return isActive ? (
     <OrbitControls
       minPolarAngle={Math.PI / 4}
       maxPolarAngle={Math.PI / 4}
@@ -9,5 +22,5 @@ export function CameraControlSetup() {
       // maxAzimuthAngle={Math.PI / 4}
       enableZoom={false}
     />
-  );
+  ) : null;
 }
