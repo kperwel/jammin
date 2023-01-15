@@ -1,38 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Canvas, MeshProps } from "@react-three/fiber";
-import { Camera, Mesh, Vector3 } from "three";
-import {
-  ArcballControls,
-  Grid,
-  OrbitControls,
-  OrthographicCamera,
-  PerspectiveCamera,
-} from "@react-three/drei";
+import { Mesh } from "three";
+import { CameraControlSetup } from "./modules/CameraControlSetup";
+import { DebugToolsSetup } from "./modules/DebugToolsSetup";
+import { CameraSetup } from "./modules/CameraSetup";
+import { InputControlSetup } from "./modules/InputControlSetup";
 
-function DebugTools() {
-  return (
-    <>
-      <Grid
-        cellColor="white"
-        args={[100, 100]}
-        infiniteGrid
-        sectionSize={5}
-        sectionColor={0xFF0000}
-        fadeDistance={30}
-        fadeStrength={0.8}
-      />
-      <axesHelper />
-      {/* <ArcballControls /> */}
-      <OrbitControls
-        minPolarAngle={Math.PI / 4}
-        maxPolarAngle={Math.PI / 4}
-        // minAzimuthAngle={Math.PI / 4}
-        // maxAzimuthAngle={Math.PI / 4}
-        enableZoom={false}
-      />
-    </>
-  );
-}
 function Box(props: MeshProps) {
   // This reference will give us direct access to the mesh
   const mesh = useRef<Mesh | null>(null);
@@ -57,23 +30,18 @@ function Box(props: MeshProps) {
 }
 
 function App() {
-  const camera = useRef<Camera | null>(null);
-
-  useEffect(() => {
-    if (camera.current) {
-      camera.current.lookAt(new Vector3(0, 0, 0));
-    }
-  }, [camera]);
-
   return (
     <Canvas>
-      <PerspectiveCamera ref={camera} makeDefault name="FBO Camera" position={[10, 10, 10]} />
-      {/* <OrthographicCamera makeDefault ref={camera} position={[10, 10, 10]} zoom={50} /> */}
       <ambientLight />
       <pointLight position={[10, 10, 10]} />
       <Box position={[-1.2, 0, 0]} />
       <Box position={[1.2, 0, 0]} />
-      <DebugTools />
+
+      {/* Global Modules Setup */}
+      <InputControlSetup />
+      <DebugToolsSetup />
+      <CameraSetup />
+      <CameraControlSetup />
     </Canvas>
   );
 }
