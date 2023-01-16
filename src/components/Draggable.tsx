@@ -1,7 +1,7 @@
 import { animated, useSpring } from "@react-spring/three";
 import { Plane } from "@react-three/drei";
 import { ThreeEvent } from "@react-three/fiber";
-import { useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { Vector3Tuple } from "three";
 import { create } from "zustand";
 import { useCameraControlStore } from "../modules/CameraControlSetup";
@@ -14,20 +14,29 @@ interface DragSurfacePropTypes {
   children: React.ReactNode;
 }
 
+type Callback = (position: Vector3Tuple) => void;
+
 interface DragStore {
-  position: Vector3Tuple;
-  setPosition: (position: Vector3Tuple) => void;
+  onMouseMove: Callback | null;
+  setOnMouseMove: (onMouseMove: Callback | null) => void;
 }
 
 export const useDragStore = create<DragStore>((set) => ({
-  position: [0, 0, 0],
-  setPosition: (position) => set({ position }),
+  onMouseMove: null,
+  setOnMouseMove: (onMouseMove) => set({ onMouseMove }),
 }));
 
 export function DragSurface({ children }: DragSurfacePropTypes) {
-  const setPosition = useDragStore((state) => state.setPosition);
+  const [onMouseMove, setOnMouseMove] = useDragStore((state) => [
+    state.onMouseMove,
+    state.setOnMouseMove,
+  ]);
   const onPointerMove = ({ point }: ThreeEvent<PointerEvent>) => {
-    setPosition([point.x, point.y, point.z]);
+    onMouseMove?.([point.x, point.y, point.z]);
+  };
+
+  const onPointerUp = () => {
+    setOnMouseMove(null);
   };
   return (
     <>
@@ -35,47 +44,45 @@ export function DragSurface({ children }: DragSurfacePropTypes) {
         args={[100, 100]}
         rotation={[-Math.PI / 2, 0, 0]}
         onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
       />
       {children}
     </>
   );
 }
 
-export function Draggable({ children }: DraggablePropsType) {
+function Draggable({ children }: DraggablePropsType) {
+  const [onMouseMove, setOnMouseMove] = useDragStore((state) => [
+    state.onMouseMove,
+    state.setOnMouseMove,
+  ]);
   const [enableCameraControl, disableCameraControl] = useCameraControlStore(
     (state) => [state.enable, state.disable]
   );
-  const [isDragging, setIsDragging] = useState(false);
+
   const [props, api] = useSpring(() => ({
     position: [0, 0, 0] as Vector3Tuple,
   }));
 
-  useEffect(() => {
-    return useDragStore.subscribe(({ position }) => {
-      if (isDragging) {
-        disableCameraControl();
-        api.set({ position });
-      }
-      enableCameraControl();
-    });
-  }, [isDragging]);
+  const callback = useCallback(
+    (position: Vector3Tuple) => {
+      api.set({ position });
+    },
+    [api]
+  );
 
+//   const isDragging = onMouseMove === callback;
   const onPointerDown = () => {
-    setIsDragging(true);
-  };
-  const onPointerUp = () => {
-    setIsDragging(false);
+    setOnMouseMove(callback);
   };
 
   // Bind it to a component
   return (
-    <animated.group
-      {...props}
-      onPointerDown={onPointerDown}
-      onPointerUp={onPointerUp}
-    >
+    <animated.group {...props} onPointerDown={onPointerDown}>
       {children}
     </animated.group>
   );
   //   return <PivotControls>{children}</PivotControls>;
 }
+const MemoizedDraggable = memo(Draggable);
+export { MemoizedDraggable as Draggable };

@@ -15,9 +15,12 @@ function App() {
       <pointLight position={[10, 10, 10]} />
       <DragSurface>
         <Draggable>
-          <Pawn position={[0, 0, 2]} type={TYPE.PERSON} color={0xffffff} />
+          <Pawn position={[0, 0, 0]} type={TYPE.PERSON} color={0xffffff} />
         </Draggable>
-        <Pawn position={[2, 0, 0]} type={TYPE.ITEM} color={0xff0000} />
+
+        <Draggable>
+          <Pawn position={[0, 0, 0]} type={TYPE.ITEM} color={0xff0000} />
+        </Draggable>
       </DragSurface>
       {/* Global Modules Setup */}
       <InputControlSetup />
