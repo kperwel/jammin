@@ -20,7 +20,7 @@ export function CameraControlSetup() {
       maxPolarAngle={Math.PI / 4}
       // minAzimuthAngle={Math.PI / 4}
       // maxAzimuthAngle={Math.PI / 4}
-      enableZoom={false}
+      // enableZoom={false}
     />
   ) : null;
 }
