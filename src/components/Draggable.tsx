@@ -27,6 +27,9 @@ export const useDragStore = create<DragStore>((set) => ({
 }));
 
 export function DragSurface({ children }: DragSurfacePropTypes) {
+  const [enableCameraControl, disableCameraControl] = useCameraControlStore(
+    (state) => [state.enable, state.disable]
+  );
   const [onMouseMove, setOnMouseMove] = useDragStore((state) => [
     state.onMouseMove,
     state.setOnMouseMove,
@@ -38,6 +41,15 @@ export function DragSurface({ children }: DragSurfacePropTypes) {
   const onPointerUp = () => {
     setOnMouseMove(null);
   };
+
+  useEffect(() => {
+    if (onMouseMove === null) {
+        enableCameraControl();
+    } else {
+        disableCameraControl();
+    }
+  }, [onMouseMove]);
+
   return (
     <>
       <Plane
@@ -72,7 +84,7 @@ function Draggable({ children }: DraggablePropsType) {
     [api]
   );
 
-//   const isDragging = onMouseMove === callback;
+  //   const isDragging = onMouseMove === callback;
   const onPointerDown = () => {
     setOnMouseMove(callback);
   };
