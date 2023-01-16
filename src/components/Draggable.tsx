@@ -45,6 +45,7 @@ export function DragSurface({ children }: DragSurfacePropTypes) {
         rotation={[-Math.PI / 2, 0, 0]}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
+        visible={false}
       />
       {children}
     </>
