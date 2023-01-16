@@ -9,7 +9,7 @@ export function DebugToolsSetup() {
         infiniteGrid
         sectionSize={5}
         sectionColor={0xff0000}
-        fadeDistance={30}
+        fadeDistance={50}
         fadeStrength={0.8}
       />
       <axesHelper />

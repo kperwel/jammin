@@ -1,4 +1,5 @@
 import { OrbitControls } from "@react-three/drei";
+import { Vector3, Vector3Tuple } from "three";
 import { create } from "zustand";
 interface CameraControlStore {
   isActive: boolean;

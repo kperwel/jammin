@@ -1,7 +1,7 @@
 import { animated, useSpring } from "@react-spring/three";
 import { Plane } from "@react-three/drei";
 import { ThreeEvent } from "@react-three/fiber";
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Vector3Tuple } from "three";
 import { create } from "zustand";
 import { useCameraControlStore } from "../modules/CameraControlSetup";
@@ -27,6 +27,8 @@ export const useDragStore = create<DragStore>((set) => ({
 }));
 
 export function DragSurface({ children }: DragSurfacePropTypes) {
+  const snap = false;
+  const lastMouseMove = useRef([0, 0, 0] as Vector3Tuple);
   const [enableCameraControl, disableCameraControl] = useCameraControlStore(
     (state) => [state.enable, state.disable]
   );
@@ -35,18 +37,27 @@ export function DragSurface({ children }: DragSurfacePropTypes) {
     state.setOnMouseMove,
   ]);
   const onPointerMove = ({ point }: ThreeEvent<PointerEvent>) => {
-    onMouseMove?.([point.x, point.y, point.z]);
+    const position: Vector3Tuple = [point.x, point.y, point.z];
+    lastMouseMove.current = position;
+    onMouseMove?.(position);
   };
 
   const onPointerUp = () => {
+    if (snap) {
+      onMouseMove?.([
+        Math.round(lastMouseMove.current[0] / 5) * 5,
+        Math.round(lastMouseMove.current[1] / 5) * 5,
+        Math.round(lastMouseMove.current[2] / 5) * 5,
+      ]);
+    }
     setOnMouseMove(null);
   };
 
   useEffect(() => {
     if (onMouseMove === null) {
-        enableCameraControl();
+      enableCameraControl();
     } else {
-        disableCameraControl();
+      disableCameraControl();
     }
   }, [onMouseMove]);
 
